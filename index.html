@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#D32F2F">
+<title>DS모터스포츠 | 내 차량 정비 조회</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.47.0/tabler-icons.min.css">
+<style>
+:root{
+  --primary:#D32F2F; --pl:#fde8e8; --bg:#f5f6f8; --bg2:#ffffff; --bg3:#f0f2f5;
+  --tx:#1a1a1a; --tx2:#555; --tx3:#999; --bd:#e4e7eb; --bd2:#d0d4da;
+  --ok:#2e7d32; --warn:#ff8f00; --info:#1565c0;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx);line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:560px;margin:0 auto;min-height:100vh;background:var(--bg);padding-bottom:env(safe-area-inset-bottom)}
+.hdr{background:linear-gradient(135deg,#D32F2F,#b71c1c);color:#fff;padding:calc(18px + env(safe-area-inset-top)) 20px 18px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+.hdr .logo{width:40px;height:40px;background:rgba(255,255,255,0.18);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.hdr h1{font-size:17px;font-weight:800;letter-spacing:-.3px}
+.hdr p{font-size:11px;opacity:.85;margin-top:1px}
+.pad{padding:18px}
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.fl{display:block;font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:6px}
+.fi{width:100%;border:1.5px solid var(--bd2);border-radius:10px;padding:13px 14px;font-size:15px;background:var(--bg2);color:var(--tx);outline:none;transition:border .15s}
+.fi:focus{border-color:var(--primary)}
+.btn{width:100%;border:none;border-radius:11px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,#D32F2F,#b71c1c);color:#fff;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s}
+.btn:active{opacity:.85}
+.btn.ghost{background:var(--bg3);color:var(--tx2)}
+.btn.sm{padding:9px 14px;font-size:13px;width:auto}
+.plate{display:inline-block;background:#1a1a1a;color:#fff;font-weight:800;font-family:monospace;letter-spacing:1px;padding:4px 10px;border-radius:7px;font-size:15px}
+.plate-old{font-size:11px;color:var(--tx3);text-decoration:line-through;background:var(--bg3);padding:2px 7px;border-radius:5px}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:700}
+.b-pl{background:var(--pl);color:var(--primary)}
+.b-ok{background:#e8f5e9;color:var(--ok)}
+.b-info{background:#e3f2fd;color:var(--info)}
+.b-warn{background:#fff3e0;color:var(--warn)}
+.tl{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--bd)}
+.tl:last-child{border-bottom:none}
+.tl .dot{width:11px;height:11px;border-radius:50%;background:var(--primary);flex-shrink:0;margin-top:5px;position:relative}
+.tl .dot::after{content:'';position:absolute;top:14px;left:5px;width:1px;height:calc(100% + 14px);background:var(--bd)}
+.tl:last-child .dot::after{display:none}
+.hide{display:none}
+.spin{width:38px;height:38px;border:3px solid var(--bd);border-top-color:var(--primary);border-radius:50%;animation:sp 0.7s linear infinite;margin:40px auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:40px 20px;color:var(--tx3)}
+.empty .ic{font-size:44px;margin-bottom:12px}
+.sec-title{font-size:15px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.stat{background:var(--bg);border:1.5px solid var(--bd);border-radius:11px;padding:12px}
+.stat .ic{font-size:20px}
+.stat .nm{font-size:12px;font-weight:800;margin:4px 0 6px}
+.stat .ln{font-size:11px;color:var(--tx2);line-height:1.7}
+.bar{height:5px;background:var(--bd);border-radius:3px;overflow:hidden;margin-top:7px}
+.bar>div{height:100%;border-radius:3px;transition:width .5s}
+.price-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--bd);cursor:pointer}
+.price-row:last-child{border-bottom:none}
+.photo{width:62px;height:48px;border-radius:7px;overflow:hidden;flex-shrink:0;border:1px solid var(--bd)}
+.photo img{width:100%;height:100%;object-fit:cover}
+.tabbar{display:flex;gap:0;background:var(--bg2);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.tabbar button{flex:1;padding:12px 4px;border:none;background:transparent;font-size:13px;font-weight:700;color:var(--tx3);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+.tabbar button.on{background:var(--pl);color:var(--primary)}
+.tabbar button i{font-size:18px}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;display:flex;align-items:flex-end;justify-content:center}
+.modal{background:var(--bg2);border-radius:20px 20px 0 0;width:100%;max-width:560px;padding:22px;padding-bottom:max(22px,env(safe-area-inset-bottom));animation:up .25s}
+@keyframes up{from{transform:translateY(100%)}}
+.err-msg{background:#ffebee;color:#c62828;border-radius:10px;padding:12px 14px;font-size:13px;font-weight:600;margin-top:10px;display:flex;align-items:center;gap:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <div class="logo">🏍️</div>
+    <div>
+      <h1>DS모터스포츠</h1>
+      <p>내 차량 정비 이력 조회</p>
+    </div>
+  </div>
+
+  <!-- 로그인 화면 -->
+  <div id="login" class="pad">
+    <div class="card">
+      <div class="sec-title"><i class="ti ti-search"></i> 차량 조회</div>
+      <p style="font-size:13px;color:var(--tx2);margin-bottom:18px">차량번호와 등록된 연락처 뒷 4자리를 입력하시면 정비 이력과 소모품 교환 내역을 확인하실 수 있습니다.</p>
+      <div style="margin-bottom:14px">
+        <label class="fl">차량번호</label>
+        <input class="fi" id="in-plate" placeholder="예: 광주12가3456" autocomplete="off">
+      </div>
+      <div style="margin-bottom:18px">
+        <label class="fl">연락처 뒷 4자리</label>
+        <input class="fi" id="in-phone" placeholder="예: 5678" inputmode="numeric" maxlength="4" autocomplete="off">
+      </div>
+      <button class="btn" onclick="doLogin()"><i class="ti ti-login"></i> 조회하기</button>
+      <div id="login-err" class="err-msg hide"></div>
+    </div>
+    <div style="text-align:center;font-size:11px;color:var(--tx3);padding:10px">
+      조회에 문제가 있으시면 매장으로 문의해 주세요.
+    </div>
+  </div>
+
+  <!-- 로딩 -->
+  <div id="loading" class="hide"><div class="spin"></div></div>
+
+  <!-- 결과 화면 -->
+  <div id="result" class="hide pad">
+    <!-- 차량 헤더 카드 -->
+    <div class="card" id="veh-card"></div>
+    <!-- 탭 -->
+    <div class="tabbar">
+      <button id="t-history" class="on" onclick="switchTab('history')"><i class="ti ti-history"></i>정비 이력</button>
+      <button id="t-stats" onclick="switchTab('stats')"><i class="ti ti-chart-line"></i>소모품 분석</button>
+      <button id="t-price" onclick="switchTab('price')"><i class="ti ti-receipt"></i>예상 비용</button>
+    </div>
+    <div id="tab-history"></div>
+    <div id="tab-stats" class="hide"></div>
+    <div id="tab-price" class="hide"></div>
+    <button class="btn ghost" style="margin-top:8px" onclick="logout()"><i class="ti ti-arrow-left"></i> 다른 차량 조회</button>
+  </div>
+</div>
+
+<script>
+// ───────── Supabase 설정 (anon, 읽기전용 사용) ─────────
+const _SB_URL='https://zunzruhwhypfiayaiytl.supabase.co';
+const _SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1bnpydWh3aHlwZmlheWFpeXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4Nzc0MDUsImV4cCI6MjA5NTQ1MzQwNX0.9KwPUhs1Re1VoP-1TPcoG8MZwBAzNTq4Uhp9MefK46o';
+// RPC 호출: DB 함수가 인증 + 민감정보 제외 요약만 반환
+async function sbRpc(fn,params){
+  const r=await fetch(`${_SB_URL}/rest/v1/rpc/${fn}`,{
+    method:'POST',
+    headers:{'apikey':_SB_KEY,'Authorization':'Bearer '+_SB_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify(params)
+  });
+  if(!r.ok){console.error('rpc',fn,await r.text());return null;}
+  return await r.json();
+}
+
+const fmt=n=>(n||0).toLocaleString()+'원';
+
+// 조회된 차량/정비 데이터 보관
+let _veh=null, _vehType=null, _logs=[], _prices=[];
+
+// ───────── 로그인(조회) ─────────
+async function doLogin(){
+  const plate=document.getElementById('in-plate').value.trim();
+  const phone4=document.getElementById('in-phone').value.trim();
+  const errEl=document.getElementById('login-err');
+  errEl.classList.add('hide');
+  if(!plate){showErr('차량번호를 입력해 주세요.');return;}
+  if(!/^\d{4}$/.test(phone4)){showErr('연락처 뒷 4자리를 정확히 입력해 주세요.');return;}
+
+  document.getElementById('login').classList.add('hide');
+  document.getElementById('loading').classList.remove('hide');
+
+  // DB 안전 함수 1회 호출 — 번호판 매칭·연락처 인증·요약을 서버가 처리
+  const res=await sbRpc('customer_vehicle_lookup',{p_plate:plate,p_phone4:phone4});
+
+  if(res===null){ backToLogin('조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'); return; }
+  if(!res.ok){
+    if(res.reason==='not_found') backToLogin('등록되지 않은 차량번호입니다. 번호를 다시 확인해 주세요.');
+    else if(res.reason==='phone_mismatch') backToLogin('연락처 뒷 4자리가 일치하지 않습니다.');
+    else backToLogin('조회에 실패했습니다. 매장으로 문의해 주세요.');
+    return;
+  }
+
+  // 결과 세팅
+  _veh=res.vehicle||{};
+  _vehType=_veh.type||'rent';
+  _logs=(res.logs||[]).map(normalizeLog).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  _prices=res.prices||[];
+
+  document.getElementById('loading').classList.add('hide');
+  document.getElementById('result').classList.remove('hide');
+  renderVehCard();
+  renderHistory();
+  renderStats();
+  renderPrice();
+  switchTab('history');
+  window.scrollTo(0,0);
+}
+
+function normalizeLog(l){
+  let items=l.items; if(typeof items==='string'){try{items=JSON.parse(items);}catch{items=[];}}
+  let photos=l.photos; if(typeof photos==='string'){try{photos=JSON.parse(photos);}catch{photos=[];}}
+  return {date:l.date,mileage:l.mileage||0,cost:l.cost||0,items:items||[],photos:photos||[],memo:l.memo||''};
+}
+
+function showErr(msg){
+  const e=document.getElementById('login-err');
+  e.innerHTML=`<i class="ti ti-alert-circle"></i> ${msg}`;
+  e.classList.remove('hide');
+}
+function backToLogin(msg){
+  document.getElementById('loading').classList.add('hide');
+  document.getElementById('login').classList.remove('hide');
+  showErr(msg);
+}
+function logout(){
+  _veh=null;_logs=[];
+  document.getElementById('result').classList.add('hide');
+  document.getElementById('login').classList.remove('hide');
+  document.getElementById('login-err').classList.add('hide');
+  document.getElementById('in-plate').value='';
+  document.getElementById('in-phone').value='';
+  window.scrollTo(0,0);
+}
+
+// ───────── 차량 헤더 ─────────
+function renderVehCard(){
+  const v=_veh;
+  let pp=v.prev_plates; if(typeof pp==='string'){try{pp=JSON.parse(pp);}catch{pp=[];}}
+  const prevHtml=(Array.isArray(pp)&&pp.length)?`<div style="margin-top:8px;display:flex;gap:5px;flex-wrap:wrap;align-items:center"><span style="font-size:11px;color:var(--tx3)">이전번호:</span>${pp.map(p=>`<span class="plate-old">${p}</span>`).join('')}</div>`:'';
+  const lastLog=_logs[0];
+  document.getElementById('veh-card').innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span class="plate">${v.plate_no}</span>
+      <span style="font-size:15px;font-weight:800">${v.model||''}</span>
+      <span class="badge ${_vehType==='rent'?'b-info':'b-pl'}">${_vehType==='rent'?'렌트 차량':'리스 차량'}</span>
+    </div>
+    <div style="margin-top:8px;font-size:12px;color:var(--tx2);display:flex;gap:12px;flex-wrap:wrap">
+      ${v.year?`<span>📅 ${v.year}년식</span>`:''}
+      ${v.color?`<span>🎨 ${v.color}</span>`:''}
+      ${lastLog?`<span>🛣️ 최근 ${lastLog.mileage.toLocaleString()}km</span>`:''}
+    </div>
+    ${prevHtml}
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <div style="flex:1;min-width:90px;background:var(--bg);border-radius:9px;padding:10px;text-align:center">
+        <div style="font-size:11px;color:var(--tx3)">총 정비</div>
+        <div style="font-size:19px;font-weight:800;color:var(--primary)">${_logs.length}회</div>
+      </div>
+      <div style="flex:1;min-width:90px;background:var(--bg);border-radius:9px;padding:10px;text-align:center">
+        <div style="font-size:11px;color:var(--tx3)">누적 정비비</div>
+        <div style="font-size:19px;font-weight:800">${(_logs.reduce((a,b)=>a+b.cost,0)/10000).toFixed(0)}<small style="font-size:12px">만원</small></div>
+      </div>
+    </div>`;
+}
+
+// ───────── 탭 전환 ─────────
+function switchTab(t){
+  ['history','stats','price'].forEach(x=>{
+    document.getElementById('t-'+x).classList.toggle('on',x===t);
+    document.getElementById('tab-'+x).classList.toggle('hide',x!==t);
+  });
+}
+
+// ───────── 정비 이력 ─────────
+function renderHistory(){
+  const box=document.getElementById('tab-history');
+  if(!_logs.length){box.innerHTML=`<div class="card"><div class="empty"><div class="ic">📋</div><div>등록된 정비 이력이 없습니다</div></div></div>`;return;}
+  box.innerHTML=`<div class="card">${_logs.map(log=>`
+    <div class="tl">
+      <div class="dot"></div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px">
+          <span style="font-weight:800;font-size:14px">${log.date||'-'}</span>
+          ${log.mileage?`<span style="font-size:12px;color:var(--tx2)">${log.mileage.toLocaleString()}km</span>`:''}
+          ${log.cost?`<span style="margin-left:auto;font-weight:800;color:var(--primary)">${fmt(log.cost)}</span>`:''}
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:${log.photos.length?'8px':'0'}">
+          ${log.items.length?log.items.map(it=>{
+            const isEtc=it.name==='기타(직접입력)'||(it.name||'').endsWith('(기타)');
+            const disp=isEtc?(it.customName?it.customName+' (기타)':(it.name||'').replace('(직접입력)','')):it.name;
+            return `<span class="badge b-pl">${disp}</span>`;
+          }).join(''):'<span style="font-size:12px;color:var(--tx3)">정비 항목 미기재</span>'}
+        </div>
+        ${log.photos.length?`<div style="display:flex;gap:6px;flex-wrap:wrap">${log.photos.map(u=>`<div class="photo" onclick="viewPhoto('${u}')"><img src="${u}" onerror="this.parentElement.style.display='none'"></div>`).join('')}</div>`:''}
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+// ───────── 소모품 분석 ─────────
+const CONSUM=[
+  {key:'엔진오일',label:'엔진오일',icon:'🛢️',color:'#e65100'},
+  {key:'에어필터',label:'에어필터',icon:'💨',color:'#1565c0'},
+  {key:'오일필터',label:'오일필터',icon:'🔩',color:'#6a1b9a'},
+  {key:'타이어',label:'타이어',icon:'⚫',color:'#37474f'},
+  {key:'브레이크',label:'브레이크',icon:'🛑',color:'#c62828'},
+  {key:'점화플러그',label:'점화플러그',icon:'⚡',color:'#f57f17'},
+  {key:'배터리',label:'배터리',icon:'🔋',color:'#2e7d32'},
+  {key:'냉각수',label:'냉각수',icon:'❄️',color:'#0288d1'},
+  {key:'체인',label:'체인',icon:'🔗',color:'#795548'},
+];
+function renderStats(){
+  const box=document.getElementById('tab-stats');
+  const asc=[..._logs].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  const curKm=asc.length?asc[asc.length-1].mileage:0;
+  const cards=CONSUM.map(c=>{
+    const matched=asc.filter(l=>(l.items||[]).some(i=>(i.name||'').replace(/\s/g,'').includes(c.key)));
+    if(!matched.length)return null;
+    const withKm=matched.filter(l=>l.mileage>0);
+    const iv=[];
+    for(let i=1;i<withKm.length;i++){const d=withKm[i].mileage-withKm[i-1].mileage;if(d>0&&d<100000)iv.push(d);}
+    const avg=iv.length?Math.round(iv.reduce((a,b)=>a+b,0)/iv.length):null;
+    const last=withKm[withKm.length-1];
+    const lastKm=last?last.mileage:null, lastDate=last?last.date:'';
+    const since=(curKm&&lastKm&&curKm>=lastKm)?curKm-lastKm:null;
+    const nextKm=(avg&&lastKm)?lastKm+avg:null;
+    const pct=(avg&&since!=null)?Math.min(100,Math.round(since/avg*100)):null;
+    const over=nextKm&&curKm?curKm>=nextKm:false;
+    return{...c,count:matched.length,avg,lastDate,lastKm,since,nextKm,pct,over};
+  }).filter(Boolean);
+  if(!cards.length){box.innerHTML=`<div class="card"><div class="empty"><div class="ic">📊</div><div>소모품 교환 데이터가 아직 없습니다</div><div style="font-size:12px;margin-top:6px">정비가 쌓이면 교환 주기를 분석해 드립니다</div></div></div>`;return;}
+  box.innerHTML=`<div class="card">
+    <div class="sec-title"><i class="ti ti-chart-line"></i> 소모품 교환 주기</div>
+    <div class="stat-grid">
+      ${cards.map(c=>`<div class="stat" style="border-color:${c.over?c.color:'var(--bd)'}">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="ic">${c.icon}</span>
+          <span style="font-size:12px;font-weight:800;color:${c.color}">${c.label}</span>
+          ${c.over?`<span style="font-size:10px;background:#D32F2F;color:#fff;padding:1px 5px;border-radius:4px;margin-left:auto">교환시기</span>`:''}
+        </div>
+        <div class="ln" style="margin-top:6px">
+          <div>총 <b>${c.count}회</b> 교환</div>
+          ${c.avg?`<div>평균 <b style="color:${c.color}">${c.avg.toLocaleString()}km</b>마다</div>`:'<div style="color:var(--tx3)">주기 계산중</div>'}
+          ${c.lastDate?`<div>최근: ${c.lastDate}</div>`:''}
+          ${c.since!=null?`<div>이후 <b style="color:${c.over?'#D32F2F':'var(--tx)'}">${c.since.toLocaleString()}km</b> 주행</div>`:''}
+        </div>
+        ${c.pct!=null?`<div class="bar"><div style="width:${c.pct}%;background:${c.pct>=100?'#D32F2F':c.pct>=80?'#ff8f00':c.color}"></div></div>
+          <div style="font-size:10px;color:var(--tx3);margin-top:3px;text-align:right">${c.pct}% 소모</div>`:''}
+      </div>`).join('')}
+    </div>
+    <div style="font-size:11px;color:var(--tx3);margin-top:12px">* 교환 2회 이상부터 평균 주기가 계산됩니다. 참고용이며 실제 주기는 운행 조건에 따라 달라집니다.</div>
+  </div>`;
+}
+
+// ───────── 예상 비용 ─────────
+function renderPrice(){
+  const box=document.getElementById('tab-price');
+  if(!_prices.length){box.innerHTML=`<div class="card"><div class="empty"><div class="ic">💰</div><div>등록된 표준 단가가 없습니다</div><div style="font-size:12px;margin-top:6px">매장으로 문의해 주세요</div></div></div>`;return;}
+  box.innerHTML=`<div class="card">
+    <div class="sec-title"><i class="ti ti-receipt"></i> 정비 항목별 예상 비용</div>
+    <p style="font-size:12px;color:var(--tx2);margin-bottom:6px">항목을 누르면 세부 내역을 확인할 수 있습니다.</p>
+    ${_prices.map(p=>{
+      const part=p.part_price||0, labor=p.labor_price||0, total=part+labor;
+      return `<div class="price-row" onclick="showPriceDetail('${(p.name||'').replace(/'/g,'')}',${part},${labor},'${(p.note||'').replace(/'/g,'')}')">
+        <div>
+          <div style="font-size:14px;font-weight:700">${p.name}</div>
+          ${p.note?`<div style="font-size:11px;color:var(--tx3);margin-top:2px">${p.note}</div>`:''}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:16px;font-weight:800;color:var(--primary)">${fmt(total)}</span>
+          <i class="ti ti-chevron-right" style="color:var(--tx3)"></i>
+        </div>
+      </div>`;
+    }).join('')}
+    <div style="font-size:11px;color:var(--tx3);margin-top:12px;background:var(--bg);border-radius:8px;padding:10px">※ 표시된 금액은 예상 금액이며, 차종·부품 종류·차량 상태에 따라 실제 금액과 다를 수 있습니다.</div>
+  </div>`;
+}
+
+function showPriceDetail(name,part,labor,note){
+  const total=part+labor;
+  const bg=document.createElement('div');
+  bg.className='modal-bg';
+  bg.onclick=e=>{if(e.target===bg)bg.remove();};
+  bg.innerHTML=`<div class="modal">
+    <div style="width:40px;height:4px;background:var(--bd2);border-radius:2px;margin:0 auto 18px"></div>
+    <div style="font-size:18px;font-weight:800;margin-bottom:4px">${name}</div>
+    ${note?`<div style="font-size:12px;color:var(--tx2);margin-bottom:16px">${note}</div>`:'<div style="margin-bottom:16px"></div>'}
+    <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--bd)">
+      <span style="color:var(--tx2)">부품비</span><span style="font-weight:700">${fmt(part)}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--bd)">
+      <span style="color:var(--tx2)">공임</span><span style="font-weight:700">${fmt(labor)}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:16px 0;align-items:center">
+      <span style="font-size:15px;font-weight:800">예상 합계</span>
+      <span style="font-size:22px;font-weight:800;color:var(--primary)">${fmt(total)}</span>
+    </div>
+    <button class="btn" onclick="this.closest('.modal-bg').remove()">확인</button>
+  </div>`;
+  document.body.appendChild(bg);
+}
+
+// ───────── 사진 확대 ─────────
+function viewPhoto(url){
+  const bg=document.createElement('div');
+  bg.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px';
+  bg.onclick=()=>bg.remove();
+  bg.innerHTML=`<img src="${url}" style="max-width:100%;max-height:100%;border-radius:10px">`;
+  document.body.appendChild(bg);
+}
+
+// Enter 키 지원
+document.getElementById('in-phone').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+</script>
+</body>
+</html>
