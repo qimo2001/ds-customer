@@ -81,16 +81,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sa
   <div id="login" class="pad">
     <div class="card">
       <div class="sec-title"><i class="ti ti-search"></i> 차량 조회</div>
-      <p style="font-size:13px;color:var(--tx2);margin-bottom:18px">차량번호와 등록된 연락처 뒷 4자리를 입력하시면 정비 이력과 소모품 교환 내역을 확인하실 수 있습니다.</p>
-      <div style="margin-bottom:14px">
+      <p style="font-size:13px;color:var(--tx2);margin-bottom:18px">차량번호를 입력하시면 정비 이력과 소모품 교환 내역, 예상 정비 비용을 확인하실 수 있습니다.</p>
+      <div style="margin-bottom:18px">
         <label class="fl">차량번호</label>
         <input class="fi" id="in-plate" placeholder="예: 광주12가3456" autocomplete="off">
       </div>
-      <div style="margin-bottom:18px">
-        <label class="fl">연락처 뒷 4자리</label>
-        <input class="fi" id="in-phone" placeholder="예: 5678" inputmode="numeric" maxlength="4" autocomplete="off">
-      </div>
-      <button class="btn" onclick="doLogin()"><i class="ti ti-login"></i> 조회하기</button>
+      <button class="btn" onclick="doLogin()"><i class="ti ti-search"></i> 조회하기</button>
       <div id="login-err" class="err-msg hide"></div>
     </div>
     <div style="text-align:center;font-size:11px;color:var(--tx3);padding:10px">
@@ -141,22 +137,19 @@ let _veh=null, _vehType=null, _logs=[], _prices=[];
 // ───────── 로그인(조회) ─────────
 async function doLogin(){
   const plate=document.getElementById('in-plate').value.trim();
-  const phone4=document.getElementById('in-phone').value.trim();
   const errEl=document.getElementById('login-err');
   errEl.classList.add('hide');
   if(!plate){showErr('차량번호를 입력해 주세요.');return;}
-  if(!/^\d{4}$/.test(phone4)){showErr('연락처 뒷 4자리를 정확히 입력해 주세요.');return;}
 
   document.getElementById('login').classList.add('hide');
   document.getElementById('loading').classList.remove('hide');
 
-  // DB 안전 함수 1회 호출 — 번호판 매칭·연락처 인증·요약을 서버가 처리
-  const res=await sbRpc('customer_vehicle_lookup',{p_plate:plate,p_phone4:phone4});
+  // DB 안전 함수 1회 호출 — 번호판 매칭·요약을 서버가 처리
+  const res=await sbRpc('customer_vehicle_lookup',{p_plate:plate});
 
   if(res===null){ backToLogin('조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'); return; }
   if(!res.ok){
     if(res.reason==='not_found') backToLogin('등록되지 않은 차량번호입니다. 번호를 다시 확인해 주세요.');
-    else if(res.reason==='phone_mismatch') backToLogin('연락처 뒷 4자리가 일치하지 않습니다.');
     else backToLogin('조회에 실패했습니다. 매장으로 문의해 주세요.');
     return;
   }
@@ -199,7 +192,6 @@ function logout(){
   document.getElementById('login').classList.remove('hide');
   document.getElementById('login-err').classList.add('hide');
   document.getElementById('in-plate').value='';
-  document.getElementById('in-phone').value='';
   window.scrollTo(0,0);
 }
 
@@ -379,7 +371,7 @@ function viewPhoto(url){
 }
 
 // Enter 키 지원
-document.getElementById('in-phone').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('in-plate').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 </script>
 </body>
 </html>
